@@ -1,5 +1,5 @@
 aiogram==2.25.1
 python-dotenv==1.0.0
-aiohttp==3.8.0  # aiogram 2.25.1 এর সাথে কম্প্যাটিবল ভার্সন
+aiohttp==3.8.6 --no-binary :all:  # বিশেষ ফ্ল্যাগ যোগ করুন
 pytz
 emoji
