@@ -1,3 +1,4 @@
+# handlers/__init__.py
 from aiogram import Dispatcher
 from .earning import register_earning_handlers
 from .games import register_games_handlers
