@@ -12,4 +12,5 @@ services:
         sync: false
       - key: ADMIN_IDS
         sync: false
-    pythonVersion: 3.11
+    runtime: python
+    pythonVersion: 3.10
