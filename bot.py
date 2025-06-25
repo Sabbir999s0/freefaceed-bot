@@ -1,37 +1,34 @@
-from aiogram import Bot, Dispatcher, executor, types
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from config import Config
+import asyncio
 import logging
+from aiogram import Bot, Dispatcher
+from aiogram.enums import ParseMode
+from aiogram.fsm.storage.memory import MemoryStorage
+from config import Config
+from handlers import register_handlers
+from database import init_db
 
-# Initialize bot and dispatcher
-bot = Bot(token=Config.BOT_TOKEN)
-storage = MemoryStorage()
-dp = Dispatcher(bot, storage=storage)
-
-# Configure logging
+# Logging setup
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-async def on_startup(dp):
-    from database import init_db
+async def main():
+    bot = Bot(token=Config.BOT_TOKEN, parse_mode=ParseMode.HTML)
+    dp = Dispatcher(storage=MemoryStorage())
+
     init_db()
-    logger.info("Bot started")
+    logger.info("🤖 Bot is starting...")
+
+    # Register all handlers
+    register_handlers(dp)
+
+    # Notify admin
     await bot.send_message(Config.ADMIN_IDS[0], "🤖 Bot started successfully!")
 
-async def on_shutdown(dp):
-    logger.info("Bot shutting down...")
-    await bot.send_message(Config.ADMIN_IDS[0], "⚠️ Bot shutting down...")
-    await dp.storage.close()
-    await dp.storage.wait_closed()
-
-# Import handlers
-from handlers import register_handlers
-register_handlers(dp)
+    # Start polling
+    await dp.start_polling(bot)
 
 if __name__ == '__main__':
-    executor.start_polling(
-        dp,
-        on_startup=on_startup,
-        on_shutdown=on_shutdown,
-        skip_updates=True
-    )
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logger.info("⚠️ Bot shutdown")
